@@ -1,0 +1,25 @@
+{
+    "name": "express-hello-world",
+    "version": "1.0.0",
+    "description": "Hello world app with express 4",
+    "main": "app.js",
+    "scripts": {
+        "start": "node src/strava_funcs.js",
+        "test": "jest"
+    },
+    "keywords": [
+        "express",
+        "hello-world"
+    ],
+    "author": "",
+    "license": "MIT",
+    "dependencies": {
+        "axios": "^1.6.2",
+        "dotenv": "^16.4.5",
+        "express": "^4.15.0",
+        "js2xmlparser": "^5.0.0",
+        "pg-promise": "^11.5.4",
+        "xml": "^1.0.1",
+        "odata-v4-sql": "^0.1.2"
+    }
+}
