@@ -34,6 +34,17 @@ const
 app.listen(process.env.PORT || 8080, () => console.log('webhook is listening! UwU'));
 
 
+// Rate limiter
+import { rateLimit } from 'express-rate-limit';
+
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, //15 minutes
+    limit: 25,
+    standardHeaders: 'draft-7',
+    legacyHeaders: false
+})
+
+app.use(limiter)
 
 // Creates the endpoint for our webhook
 app.post('/webhook', (req, res) => {
