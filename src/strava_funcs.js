@@ -116,7 +116,7 @@ async function recordStravaGear(db, owner_id, gear_id, access_token) {
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             ON CONFLICT ON CONSTRAINT gear_owner_unq
             DO
-                UPDATE SET primary = $3, resource_state = $4, distance = $5, brand_name = $6, model_name = $7, description = $8;`;
+                UPDATE SET "primary" = $3, resource_state = $4, distance = $5, brand_name = $6, model_name = $7, description = $8;`;
     const write_gear = new PQ(sql);    
     write_gear.values = [gear_id, owner_id, primary, resource_state, distance, brand_name, model_name, description]
     db.none(sql);
