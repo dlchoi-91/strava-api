@@ -16,7 +16,9 @@ async function refreshStravaToken(client_id, client_secret, refresh_token) {
 
 function writeStravaTokenDB(db, owner_id, token_type, access_token, expires_at, expires_in, refresh_token) {
     sql = "INSERT INTO api_data.oauth_tokens (owner_id, token_type, access_token, expires_at, expires_in, refresh_token) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT ON CONSTRAINT owner_id_unq DO UPDATE SET access_token = $3, expires_at = $4, expires_in = $5;";
-    db.none(sql, [owner_id, token_type, access_token, expires_at, expires_in, refresh_token]);
+    const write_token = new PQ(sql);
+    write_token.values = [owner_id, token_type, access_token, expires_at, expires_in, refresh_token];
+    db.none(write_token);
 }
 
 async function stravaOauthFlow(db, owner_id, client_id, client_secret) {
@@ -68,10 +70,10 @@ function writeActivityDB(db, object_id, owner_id, name, distance, moving_time, e
     //             UPDATE SET name = '${name}', gear_id = '${gear_id}', total_elevation_gain = ${total_elevation_gain}, start_date = '${date}', start_time = '${time}', average_cadence = ${average_cadence}, average_watts = ${average_watts}, average_heartrate = ${average_heartrate}; 
             // `;
     sql = `INSERT INTO api_data.activities (object_id, owner_id, name, distance, moving_time, elapsed_time, sport_type, gear_id, total_elevation_gain, type, start_date, start_time, average_cadence, average_watts, average_heartrate) 
-            VALUES ($1, $2, '$3', $4, $5, $6, '$7', '$8', $9, '$10', '$11', '$12, $13, $14, $15)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
             ON CONFLICT (object_id)
             DO
-                UPDATE SET name = '$3', gear_id = '$8', total_elevation_gain = '$9', start_date = '$11', start_time = '$12', average_cadence = $13, average_watts = $14, average_heartrate = $15; 
+                UPDATE SET name = $3, gear_id = $8, total_elevation_gain = $9, start_date = $11, start_time = $12, average_cadence = $13, average_watts = $14, average_heartrate = $15; 
             `;
     const write_activity = new PQ(sql);
     console.log(`succesfully updated object_id: ${object_id}`);
@@ -105,11 +107,18 @@ async function recordStravaGear(db, owner_id, gear_id, access_token) {
         frame_type = results.frame_type,
         description = results.description;
     console.log(`Updating gear data gear_id: ${gear_id}, brand_name: ${brand_name}, model_name: ${model_name}`)
+    // sql_old = `INSERT INTO api_data.gear (gear_id, owner_id, "primary", resource_state, distance, brand_name, model_name, description) 
+    //         VALUES ('${gear_id}', ${owner_id}, ${primary}, ${resource_state}, ${distance},'${brand_name}', '${model_name}', '${description}')
+    //         ON CONFLICT ON CONSTRAINT gear_owner_unq
+    //         DO
+    //             UPDATE SET "primary" = ${primary}, resource_state = ${resource_state}, distance = ${distance}, brand_name = '${brand_name}', model_name = '${model_name}', description = '${description}';`;
     sql = `INSERT INTO api_data.gear (gear_id, owner_id, "primary", resource_state, distance, brand_name, model_name, description) 
-            VALUES ('${gear_id}', ${owner_id}, ${primary}, ${resource_state}, ${distance},'${brand_name}', '${model_name}', '${description}')
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             ON CONFLICT ON CONSTRAINT gear_owner_unq
             DO
-                UPDATE SET "primary" = ${primary}, resource_state = ${resource_state}, distance = ${distance}, brand_name = '${brand_name}', model_name = '${model_name}', description = '${description}';`;
+                UPDATE SET primary = $3, resource_state = $4, distance = $5, brand_name = $6, model_name = $7, description = $8;`;
+    const write_gear = new PQ(sql);    
+    write_gear.values = [gear_id, owner_id, primary, resource_state, distance, brand_name, model_name, description]
     db.none(sql);
     return {gear_id: gear_id};
 }
