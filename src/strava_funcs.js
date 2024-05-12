@@ -1,5 +1,5 @@
 const axios = require('axios');
-
+const { ParameterizedQuery: PQ } = require('pg-promise');
 
 
 //Oauth Flow Related Functions - Ultimately stravaOauthFlow() is used
@@ -61,14 +61,22 @@ function writeActivityDB(db, object_id, owner_id, name, distance, moving_time, e
         time = date_time[1].toString().split("Z")[0];
 
 
-    sql = `INSERT INTO api_data.activities (object_id, owner_id, name, distance, moving_time, elapsed_time, sport_type, gear_id, total_elevation_gain, type, start_date, start_time, average_cadence, average_watts, average_heartrate) 
+    sql_old = `INSERT INTO api_data.activities (object_id, owner_id, name, distance, moving_time, elapsed_time, sport_type, gear_id, total_elevation_gain, type, start_date, start_time, average_cadence, average_watts, average_heartrate) 
             VALUES (${object_id},${owner_id}, '${name}', ${distance}, ${moving_time}, ${elapsed_time}, '${sport_type}', '${gear_id}', ${total_elevation_gain}, '${type}', '${date}', '${time}', ${average_cadence}, ${average_watts}, ${average_heartrate})
             ON CONFLICT (object_id)
             DO
                 UPDATE SET name = '${name}', gear_id = '${gear_id}', total_elevation_gain = ${total_elevation_gain}, start_date = '${date}', start_time = '${time}', average_cadence = ${average_cadence}, average_watts = ${average_watts}, average_heartrate = ${average_heartrate}; 
             `;
+    sql = `INSERT INTO api_data.activities (object_id, owner_id, name, distance, moving_time, elapsed_time, sport_type, gear_id, total_elevation_gain, type, start_date, start_time, average_cadence, average_watts, average_heartrate) 
+            VALUES ($1,$2, '$3, $4, $5, $6, '$7', '$8', $9, '$10, '$11, '$12, $13, $14, $15)
+            ON CONFLICT (object_id)
+            DO
+                UPDATE SET name = '$3', gear_id = '$8', total_elevation_gain = '$9', start_date = '$11', start_time = '$12', average_cadence = $13, average_watts = $14, average_heartrate = $15; 
+            `;
+    const write_activity = new PQ(sql);
     console.log(`succesfully updated object_id: ${object_id}`);
-    db.none(sql);
+    write_activity.values = [object_id , owner_id , name, distance, moving_time, elapsed_time, sport_type, gear_id, total_elevation_gain, type, date, time, average_cadence, average_watts, average_heartrate]
+    db.none(write_activity);
     return;
 }
 
