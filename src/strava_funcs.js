@@ -77,7 +77,7 @@ function writeActivityDB(db, object_id, owner_id, name, distance, moving_time, e
             `;
     const write_activity = new PQ(sql);
     console.log(`succesfully updated object_id: ${object_id}`);
-    write_activity.values = [object_id , owner_id , name, dist_int, moving_time, elapsed_time, sport_type, gear_id, total_elevation_gain, type, date, time, average_cadence, average_watts, average_heartrate]
+    write_activity.values = [object_id , owner_id , name, dist_int, moving_time, elapsed_time, sport_type, gear_id, total_elevation_gain, type, date, time, average_cadence, average_watts, average_heartrate];
     db.none(write_activity);
     return;
 }
@@ -118,8 +118,8 @@ async function recordStravaGear(db, owner_id, gear_id, access_token) {
             DO
                 UPDATE SET "primary" = $3, resource_state = $4, distance = $5, brand_name = $6, model_name = $7, description = $8;`;
     const write_gear = new PQ(sql);    
-    write_gear.values = [gear_id, owner_id, primary, resource_state, distance, brand_name, model_name, description]
-    db.none(sql);
+    write_gear.values = [gear_id, owner_id, primary, resource_state, distance, brand_name, model_name, description];
+    db.none(write_gear);
     return {gear_id: gear_id};
 }
 
