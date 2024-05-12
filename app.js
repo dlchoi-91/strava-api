@@ -6,6 +6,7 @@ const
     bodyParser = require('body-parser'),
     odatasql = require('odata-v4-sql'),
     js2xmlparser = require('js2xmlparser'),
+    rateLimit = require('express-rate-limit'),
     //import src
     stravaFuncs = require('./src/strava_funcs'),
     client_id = process.env.stravaclientid,
@@ -24,27 +25,22 @@ const
     colon = ':',
     conn_string = con1 + dbuser + colon + dbpwd + at + host + colon + port + database,
     db = pgp(conn_string),
+    //ratelimit
+    limiter = rateLimit({
+        windowMs: 15 * 60 * 1000, //15 minutes
+        limit: 25,
+        standardHeaders: 'draft-7',
+        legacyHeaders: false
+    }),
     // creates express http server
     app = express().use(bodyParser.json());
 
 
 
-
 // Sets server port and logs message on success
 app.listen(process.env.PORT || 8080, () => console.log('webhook is listening! UwU'));
-
-
-// Rate limiter
-import { rateLimit } from 'express-rate-limit';
-
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, //15 minutes
-    limit: 25,
-    standardHeaders: 'draft-7',
-    legacyHeaders: false
-})
-
 app.use(limiter)
+
 
 // Creates the endpoint for our webhook
 app.post('/webhook', (req, res) => {
