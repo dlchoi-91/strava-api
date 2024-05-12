@@ -38,11 +38,20 @@ async function stravaOauthFlow(db, owner_id, client_id, client_secret) {
 //Functions related to Strava Activities - Ultimately recordStravaActivity() is used
 async function getStravaActivity(object_id, access_token) {
     let object_str = object_id.toString();
-    url = `https://www.strava.com/api/v3/activities/${object_str}`;
-    config = {
-        headers: { Authorization: `Bearer ${access_token}` }
-    };
-    return await axios.get(url, config)
+    //validate object_str
+    let regex = '[0-9]{11}';
+    let regex_result = object_str.match(regex);
+    if (regex_result[0] === object_str){
+        let object_str_valid = object_str
+        url = `https://www.strava.com/api/v3/activities/${object_str_valid}`;
+        config = {
+            headers: { Authorization: `Bearer ${access_token}` }
+        };
+        return await axios.get(url, config)
+    } else {
+        throw new Error("object id of activity did not meet pattern requirements");
+    }
+
 }
 
 function writeActivityDB(db, object_id, owner_id, name, distance, moving_time, elapsed_time, sport_type, gear_id, total_elevation_gain, type, start_date, average_cadence, average_watts, average_heartrate) {
