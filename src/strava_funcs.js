@@ -62,7 +62,7 @@ function writeActivityDB(db, object_id, owner_id, name, distance, moving_time, e
         date = date_time[0],
         time = date_time[1].toString().split("Z")[0];
 
-
+    dist_int = Math.round(distance);
     // sql_old = `INSERT INTO api_data.activities (object_id, owner_id, name, distance, moving_time, elapsed_time, sport_type, gear_id, total_elevation_gain, type, start_date, start_time, average_cadence, average_watts, average_heartrate) 
     //         VALUES (${object_id},${owner_id}, '${name}', ${distance}, ${moving_time}, ${elapsed_time}, '${sport_type}', '${gear_id}', ${total_elevation_gain}, '${type}', '${date}', '${time}', ${average_cadence}, ${average_watts}, ${average_heartrate})
     //         ON CONFLICT (object_id)
@@ -77,7 +77,7 @@ function writeActivityDB(db, object_id, owner_id, name, distance, moving_time, e
             `;
     const write_activity = new PQ(sql);
     console.log(`succesfully updated object_id: ${object_id}`);
-    write_activity.values = [object_id , owner_id , name, distance, moving_time, elapsed_time, sport_type, gear_id, total_elevation_gain, type, date, time, average_cadence, average_watts, average_heartrate]
+    write_activity.values = [object_id , owner_id , name, dist_int, moving_time, elapsed_time, sport_type, gear_id, total_elevation_gain, type, date, time, average_cadence, average_watts, average_heartrate]
     db.none(write_activity);
     return;
 }
