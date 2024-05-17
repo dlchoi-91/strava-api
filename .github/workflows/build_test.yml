@@ -1,0 +1,57 @@
+name: prod_deploy #work on workflows by env
+
+on:
+  pull_request:
+    types: [opened, reopened, edited]
+    branches:
+    - main
+    paths-ignore:
+    - 'README.md'
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read  # This is required for actions/checkout
+  
+jobs:
+  build_and_deploy_prod:
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: |
+          npm install
+          npm ci
+
+      - name: Log in to Docker
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
+        
+      - name: Build container image
+        run: docker build -t docker.io/dlchoi91/run-dashboard-api:test .
+
+      - name: Push image
+        run: docker push docker.io/dlchoi91/run-dashboard-api:test
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+          
+      - name: configure secrets
+        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 dc-k8s
+      
+      # - name: Apply Manifest
+      #   run: kubectl apply -f api_deployment.yaml
+
+      # - name: Deploy
+      #   run: kubectl rollout restart deployment run-dashboard-api
+
