@@ -4,7 +4,6 @@ require('dotenv').config();
 const
     express = require('express'),
     bodyParser = require('body-parser'),
-    odatasql = require('odata-v4-sql'),
     js2xmlparser = require('js2xmlparser'),
     rateLimit = require('express-rate-limit'),
     //import src
@@ -38,7 +37,7 @@ const
 
 
 // Sets server port and logs message on success
-app.listen(process.env.PORT || 8080, () => console.log('webhook is listening! UwU'));
+const server = app.listen(process.env.PORT || 8080, () => console.log('webhook is listening! UwU'));
 app.use(limiter)
 
 
@@ -61,6 +60,7 @@ app.post('/webhook', (req, res) => {
         db.none(sql, [aspect_type, event_time, object_id, object_type, owner_id, subscription_id, updates])
         .then(() => {
             console.log('webhook event added to db - aspect_type: ', aspect_type, ' object_id: ', object_id);
+            res.status(200).send('EVENT_RECEIVED - create'); 
         })
         .catch(error => {
             console.log('error inserting into db');
@@ -73,9 +73,11 @@ app.post('/webhook', (req, res) => {
         stravaFuncs.recordStravaActivity(db, owner_id, client_id, client_secret, object_id)
             .then((results) => {
                 if (results.gear_id) {
-                    stravaFuncs.recordStravaGear(db, owner_id, results.gear_id, results.access_token);
+                    stravaFuncs.recordStravaGear(db, owner_id, results.gear_id, results.access_token)
+                        .then(() => { res.status(200).send('EVENT_RECEIVED - update'); }); //added for testing
                 }
-            });
+            })
+            
 
     }
     if (aspect_type == 'delete') {
@@ -83,6 +85,7 @@ app.post('/webhook', (req, res) => {
         db.none(del_sql, [owner_id, object_id])
             .then(() => {
                 console.log('webhook event deleted from db - aspect_type: ', aspect_type, ' object_id: ', object_id);
+                res.status(200).send('EVENT_RECEIVED - delete'); 
                 //stravaFuncs.refreshOauthToken(db, client_id, client_secret, owner_id);
             })
             .catch(error => {
@@ -92,13 +95,12 @@ app.post('/webhook', (req, res) => {
 
     };
 
-    res.status(200).send('EVENT_RECEIVED');
+    //res.status(200).send('EVENT_RECEIVED');
 });
 
 
 app.get('/runs', (req, res) => {
-    const filter = odatasql.createFilter(req.query.$filter);
-    db.any(`SELECT * FROM API_DATA.ACTIVITIES WHERE ${filter.where}`)
+    db.any(`SELECT * FROM API_DATA.ACTIVITIES WHERE date_part('year', start_date) = date_part('year', CURRENT_DATE)`)
         .then(function (data) {
             res.set('Content-Type', 'application/xml');
             res.send(js2xmlparser.parse("activity", data));
@@ -130,3 +132,8 @@ app.get('/runs', (req, res) => {
 //         }
 //     }
 // });
+
+
+module.exports = server;
+
+//added line 133 and const server = on line 40
