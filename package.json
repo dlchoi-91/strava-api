@@ -5,7 +5,8 @@
     "main": "app.js",
     "scripts": {
         "start": "node src/strava_funcs.js",
-        "test": "cross-env NODE_ENV=test jest --testTimeout=10000 --detectOpenHandles"
+        "test": "cross-env NODE_ENV=test jest --testTimeout=10000 --detectOpenHandles",
+        "lint": "eslint eslint.config.mjs"
     },
     "keywords": [
         "express",
@@ -22,5 +23,10 @@
         "js2xmlparser": "^5.0.0",
         "pg-promise": "^11.5.4",
         "xml": "^1.0.1"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.3.0",
+        "eslint": "^9.3.0",
+        "globals": "^15.3.0"
     }
 }
