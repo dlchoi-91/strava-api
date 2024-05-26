@@ -1,15 +1,10 @@
 name: build_test #work on workflows by env
 
 on:
-  # pull_request:
-  #   types: [opened, reopened, edited]
-  #   branches:
-  #   - main
-  #   paths-ignore:
-  #   - 'README.md'
-  push:
+  pull_request:
+    types: [opened, reopened, edited]
     branches:
-    - helm
+    - main
     paths-ignore:
     - 'README.md'
   
@@ -65,7 +60,7 @@ jobs:
         run: npm test
 
   build_and_push:
-    needs: api_test
+    needs: [api_test, lint]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
