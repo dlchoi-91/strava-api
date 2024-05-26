@@ -38,7 +38,7 @@ jobs:
   #       run: npm run lint
 
   api_test:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     environment: test
     steps:
       - name: Check out Git repo
@@ -55,6 +55,13 @@ jobs:
       - name: "Run API Tests"
         env:
             NODE_ENV: test
+            dbusername: ${{secrets.DBUSERNAME}}
+            dbpassword: ${{secrets.DBPASSWORD}}
+            dbhost: ${{secrets.DBHOST}}
+            dbdbname: ${{secrets.DBDBNAME}}
+            dbport: ${{secrets.DBPORT}}
+            stravaclientid: ${{secrets.STRAVACLIENTID}}
+            stravaclientsecret: ${{secrets.STRAVACLIENTSECRET}}
         run: npm test
 
   build_and_push:
