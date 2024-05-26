@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "helm.fullname" . }}
+  labels:
+    {{- include "helm.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "helm.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "helm.labels" . | nindent 8 }}
+	{{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      containers:
+        - name: {{ .Values.containers.name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.ports.targetPort }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- with .Values.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+          - name: dbusername
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.env.dbcred.name }}
+                key: {{ .Values.env.dbcred.dbuser }}
+          - name: dbpassword
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.env.dbcred.name }}
+                key: {{ .Values.env.dbcred.dbpassword }}
+          - name: dbhost
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.env.dbcred.name }}
+                key: {{ .Values.env.dbcred.dbhost }}
+          - name: dbport
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.env.dbcred.name }}
+                key: {{ .Values.env.dbcred.dbport }}
+          - name: dbdbname
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.env.dbcred.name }}
+                key: {{ .Values.env.dbcred.dbdbname }}
+          - name: stravaclientid
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.env.strava.name }}
+                key: {{ .Values.env.strava.clientid }}
+          - name: stravaclientsecret
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.env.strava.name }}
+                key: {{ .Values.env.strava.clientsecret }}
+      {{- with .Values.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

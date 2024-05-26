@@ -5,7 +5,8 @@
     "main": "app.js",
     "scripts": {
         "start": "node src/strava_funcs.js",
-        "test": "jest"
+        "test": "cross-env NODE_ENV=test jest --testTimeout=10000 --detectOpenHandles",
+        "lint": "eslint eslint.config.mjs"
     },
     "keywords": [
         "express",
@@ -18,9 +19,17 @@
         "dotenv": "^16.4.5",
         "express": "^4.15.0",
         "express-rate-limit": "^7.2.0",
+        "helm": "^0.2.1",
         "js2xmlparser": "^5.0.0",
-        "odata-v4-sql": "^0.1.2",
         "pg-promise": "^11.5.4",
         "xml": "^1.0.1"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.3.0",
+        "cross-env": "^7.0.3",
+        "eslint": "^9.3.0",
+        "globals": "^15.3.0",
+        "jest": "^29.7.0",
+        "supertest": "^7.0.0"
     }
 }
