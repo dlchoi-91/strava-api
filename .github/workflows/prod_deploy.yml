@@ -21,7 +21,7 @@ jobs:
       - name: Set up node
         uses: actions/setup-node@v4
         with:
-          node-version: '16'
+          node-version: '20'
 
       - name: Install dependencies
         run: |
@@ -35,10 +35,10 @@ jobs:
           password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
         
       - name: Build container image
-        run: docker build -t docker.io/dlchoi91/run-dashboard-api:test .
+        run: docker build -t docker.io/dlchoi91/run-dashboard-api:latest .
 
       - name: Push image
-        run: docker push docker.io/dlchoi91/run-dashboard-api:test
+        run: docker push docker.io/dlchoi91/run-dashboard-api:latest
 
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
