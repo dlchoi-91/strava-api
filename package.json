@@ -1,12 +1,12 @@
 {
-    "name": "express-hello-world",
+    "name": "strava-api",
     "version": "1.0.0",
-    "description": "Hello world app with express 4",
+    "description": "api to get data from strava",
     "main": "app.js",
     "scripts": {
         "start": "node src/strava_funcs.js",
         "test": "cross-env NODE_ENV=test jest --testTimeout=10000 --detectOpenHandles",
-        "lint": "eslint eslint.config.mjs"
+        "lint": "eslint eslint.config.mjs" //to turn on use this, but need to configure eslint! - eslint eslint.config.mjs src/strava_funcs.js app.js
     },
     "keywords": [
         "express",

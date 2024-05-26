@@ -1,4 +1,6 @@
 'use strict';
+
+//get env variables
 require('dotenv').config();
 // Imports dependencies and sets up http server
 const
