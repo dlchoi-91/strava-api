@@ -92,6 +92,9 @@ jobs:
           
       - name: configure secrets
         run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 dc-k8s
+
+      - name: helm charts
+        run: helm upgrade --timeout 24m30s -f ./helm/values/values.yaml -f ./helm/values/test/test_values.yaml run-dashboard-api-test ./helm
       
       - name: Deploy
         run: kubectl rollout restart deployment run-dashboard-api-test-strava-api
