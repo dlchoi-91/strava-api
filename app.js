@@ -39,6 +39,7 @@ const
 // Sets server port and logs message on success
 const server = app.listen(process.env.PORT || 8080, () => console.log('webhook is listening! UwU'));
 app.use(limiter)
+app.set('trust proxy', 1)
 
 
 // Creates the endpoint for our webhook
